@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TokoKu - Toko Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-indigo-600">🛍️ TokoKu</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="cartBtn" class="relative bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        🛒 Keranjang (<span id="cartCount">0</span>)
+                    </button>
+                    <div id="userSection" class="flex items-center space-x-2">
+                        <button id="loginBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Masuk</button>
+                        <button id="signupBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Daftar</button>
+                    </div>
+                    <div id="loggedInSection" class="hidden flex items-center space-x-2">
+                        <span id="welcomeText" class="text-gray-700"></span>
+                        <button id="adminBtn" class="hidden bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">Admin</button>
+                        <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">Keluar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang di TokoKu</h2>
+                <p class="text-xl text-gray-600">Temukan produk terbaik dengan harga terjangkau</p>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 slide-in">
+                <h3 class="text-2xl font-bold mb-6 text-center">Masuk ke Akun</h3>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="loginPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" id="closeLoginModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Batal</button>
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Masuk</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Signup Modal -->
+        <div id="signupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 slide-in">
+                <h3 class="text-2xl font-bold mb-6 text-center">Daftar Akun Baru</h3>
+                <form id="signupForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Lengkap</label>
+                        <input type="text" id="signupName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="signupEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="signupPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Konfirmasi Password</label>
+                        <input type="password" id="signupConfirmPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" id="closeSignupModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Batal</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Daftar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cart Modal -->
+        <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto slide-in">
+                <h3 class="text-2xl font-bold mb-6">Keranjang Belanja</h3>
+                <div id="cartItems"></div>
+                <div class="mt-6 pt-4 border-t">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xl font-bold">Total: Rp <span id="cartTotal">0</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <button id="closeCartModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Tutup</button>
+                        <button id="checkoutBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <div id="checkoutPage" class="hidden fade-in">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8 text-center">Checkout</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg p-6 shadow-lg">
+                        <h3 class="text-xl font-bold mb-4">Informasi Pengiriman</h3>
+                        <form id="checkoutForm">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Nama Penerima</label>
+                                <input type="text" id="receiverName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Alamat Lengkap</label>
+                                <textarea id="address" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">No. Telepon</label>
+                                <input type="tel" id="phone" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Pilih Ekspedisi</label>
+                                <select id="expedition" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                                    <option value="">Pilih Ekspedisi</option>
+                                    <option value="jne" data-cost="15000">JNE - Rp 15.000</option>
+                                    <option value="pos" data-cost="12000">Pos Indonesia - Rp 12.000</option>
+                                    <option value="tiki" data-cost="18000">TIKI - Rp 18.000</option>
+                                    <option value="jnt" data-cost="13000">J&T Express - Rp 13.000</option>
+                                </select>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Metode Pembayaran</label>
+                                <select id="paymentMethod" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                                    <option value="">Pilih Metode Pembayaran</option>
+                                    <option value="transfer">Transfer Bank</option>
+                                    <option value="cod">Bayar di Tempat (COD)</option>
+                                    <option value="ewallet">E-Wallet</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-white rounded-lg p-6 shadow-lg">
+                        <h3 class="text-xl font-bold mb-4">Ringkasan Pesanan</h3>
+                        <div id="checkoutSummary"></div>
+                        <div class="mt-6 pt-4 border-t">
+                            <div class="flex justify-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>Rp <span id="subtotalAmount">0</span></span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span>Ongkir:</span>
+                                <span>Rp <span id="shippingCost">0</span></span>
+                            </div>
+                            <div class="flex justify-between text-xl font-bold">
+                                <span>Total:</span>
+                                <span>Rp <span id="finalTotal">0</span></span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex space-x-4">
+                            <button id="backToCart" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600">Kembali</button>
+                            <button id="placeOrder" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">Pesan Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Success Page -->
+        <div id="orderSuccessPage" class="hidden fade-in">
+            <div class="max-w-2xl mx-auto bg-white rounded-lg p-8 shadow-lg text-center">
+                <div class="text-6xl mb-4">✅</div>
+                <h2 class="text-3xl font-bold text-green-600 mb-4">Pesanan Berhasil!</h2>
+                <p class="text-gray-600 mb-6">Terima kasih telah berbelanja di TokoKu. Pesanan Anda sedang diproses.</p>
+                <div id="orderDetails" class="bg-gray-50 rounded-lg p-6 mb-6 text-left"></div>
+                <button id="backToHome" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Kembali ke Beranda</button>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="hidden fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-4">Panel Admin</h2>
+                <div class="flex space-x-4 mb-6">
+                    <button id="showProducts" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Kelola Produk</button>
+                    <button id="showOrders" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Lihat Pesanan</button>
+                    <button id="backToHomeFromAdmin" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Kembali</button>
+                </div>
+            </div>
+
+            <!-- Product Management -->
+            <div id="productManagement" class="bg-white rounded-lg p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Kelola Produk</h3>
+                    <button id="addProductBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Tambah Produk</button>
+                </div>
+                <div id="adminProductList" class="space-y-4"></div>
+            </div>
+
+            <!-- Order Management -->
+            <div id="orderManagement" class="hidden bg-white rounded-lg p-6 shadow-lg">
+                <h3 class="text-xl font-bold mb-6">Daftar Pesanan</h3>
+                <div id="adminOrderList" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Product Modal -->
+        <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 slide-in">
+                <h3 id="productModalTitle" class="text-2xl font-bold mb-6 text-center">Tambah Produk</h3>
+                <form id="productForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Produk</label>
+                        <input type="text" id="productName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Harga</label>
+                        <input type="number" id="productPrice" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
+                        <textarea id="productDescription" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Stok</label>
+                        <input type="number" id="productStock" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" id="closeProductModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Batal</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            {id: 1, name: 'Smartphone Android', price: 2500000, description: 'Smartphone terbaru dengan fitur canggih', stock: 10, image: '📱'},
+            {id: 2, name: 'Laptop Gaming', price: 8500000, description: 'Laptop gaming performa tinggi', stock: 5, image: '💻'},
+            {id: 3, name: 'Headphone Wireless', price: 750000, description: 'Headphone nirkabel kualitas premium', stock: 15, image: '🎧'},
+            {id: 4, name: 'Smartwatch', price: 1200000, description: 'Jam tangan pintar multifungsi', stock: 8, image: '⌚'},
+            {id: 5, name: 'Kamera DSLR', price: 6500000, description: 'Kamera profesional untuk fotografi', stock: 3, image: '📷'},
+            {id: 6, name: 'Speaker Bluetooth', price: 450000, description: 'Speaker portabel suara jernih', stock: 20, image: '🔊'}
+        ];
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let cart = [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let editingProductId = null;
+
+        // Add admin user if not exists
+        if (!users.find(u => u.email === 'admin@tokoku.com')) {
+            users.push({
+                id: Date.now(),
+                name: 'Administrator',
+                email: 'admin@tokoku.com',
+                password: 'admin123',
+                isAdmin: true
+            });
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+            loadProducts();
+        });
+
+        // UI Updates
+        function updateUI() {
+            const userSection = document.getElementById('userSection');
+            const loggedInSection = document.getElementById('loggedInSection');
+            const welcomeText = document.getElementById('welcomeText');
+            const adminBtn = document.getElementById('adminBtn');
+
+            if (currentUser) {
+                userSection.classList.add('hidden');
+                loggedInSection.classList.remove('hidden');
+                welcomeText.textContent = `Halo, ${currentUser.name}`;
+                
+                if (currentUser.isAdmin) {
+                    adminBtn.classList.remove('hidden');
+                }
+            } else {
+                userSection.classList.remove('hidden');
+                loggedInSection.classList.add('hidden');
+                adminBtn.classList.add('hidden');
+            }
+
+            updateCartCount();
+        }
+
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+
+        // Product Functions
+        function loadProducts() {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '';
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow';
+                productCard.innerHTML = `
+                    <div class="text-6xl text-center mb-4">${product.image}</div>
+                    <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+                    <p class="text-gray-600 mb-4">${product.description}</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-2xl font-bold text-indigo-600">Rp ${product.price.toLocaleString()}</span>
+                        <span class="text-sm text-gray-500">Stok: ${product.stock}</span>
+                    </div>
+                    <button onclick="addToCart(${product.id})" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors ${product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${product.stock === 0 ? 'disabled' : ''}>
+                        ${product.stock === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
+                    </button>
+                `;
+                productGrid.appendChild(productCard);
+            });
+        }
+
+        function addToCart(productId) {
+            if (!currentUser) {
+                alert('Silakan login terlebih dahulu!');
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (product && product.stock > 0) {
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    if (existingItem.quantity < product.stock) {
+                        existingItem.quantity++;
+                    } else {
+                        alert('Stok tidak mencukupi!');
+                        return;
+                    }
+                } else {
+                    cart.push({...product, quantity: 1});
+                }
+                updateCartCount();
+                alert('Produk berhasil ditambahkan ke keranjang!');
+            }
+        }
+
+        // Cart Functions
+        function showCart() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center">Keranjang kosong</p>';
+                cartTotal.textContent = '0';
+                return;
+            }
+
+            let total = 0;
+            cartItems.innerHTML = '';
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex justify-between items-center py-4 border-b';
+                cartItem.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-2xl">${item.image}</span>
+                        <div>
+                            <h4 class="font-bold">${item.name}</h4>
+                            <p class="text-gray-600">Rp ${item.price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateCartQuantity(${index}, -1)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">-</button>
+                        <span class="px-3">${item.quantity}</span>
+                        <button onclick="updateCartQuantity(${index}, 1)" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">+</button>
+                        <button onclick="removeFromCart(${index})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 ml-2">Hapus</button>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+
+            cartTotal.textContent = total.toLocaleString();
+        }
+
+        function updateCartQuantity(index, change) {
+            const item = cart[index];
+            const product = products.find(p => p.id === item.id);
+            
+            if (change > 0 && item.quantity >= product.stock) {
+                alert('Stok tidak mencukupi!');
+                return;
+            }
+            
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            
+            updateCartCount();
+            showCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            showCart();
+        }
+
+        // Checkout Functions
+        function showCheckout() {
+            if (cart.length === 0) {
+                alert('Keranjang kosong!');
+                return;
+            }
+
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('checkoutPage').classList.remove('hidden');
+            document.getElementById('cartModal').classList.add('hidden');
+
+            // Fill receiver name with current user's name
+            document.getElementById('receiverName').value = currentUser.name;
+
+            updateCheckoutSummary();
+        }
+
+        function updateCheckoutSummary() {
+            const checkoutSummary = document.getElementById('checkoutSummary');
+            const subtotalAmount = document.getElementById('subtotalAmount');
+            const shippingCost = document.getElementById('shippingCost');
+            const finalTotal = document.getElementById('finalTotal');
+
+            let subtotal = 0;
+            checkoutSummary.innerHTML = '';
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'flex justify-between items-center py-2 border-b';
+                summaryItem.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span>${item.image}</span>
+                        <span>${item.name} x${item.quantity}</span>
+                    </div>
+                    <span>Rp ${itemTotal.toLocaleString()}</span>
+                `;
+                checkoutSummary.appendChild(summaryItem);
+            });
+
+            subtotalAmount.textContent = subtotal.toLocaleString();
+
+            // Update shipping cost when expedition changes
+            const expeditionSelect = document.getElementById('expedition');
+            const shipping = expeditionSelect.selectedOptions[0]?.dataset.cost || 0;
+            shippingCost.textContent = parseInt(shipping).toLocaleString();
+            finalTotal.textContent = (subtotal + parseInt(shipping)).toLocaleString();
+        }
+
+        function placeOrder() {
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const orderData = {
+                id: Date.now(),
+                userId: currentUser.id,
+                customerName: currentUser.name,
+                receiverName: document.getElementById('receiverName').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                expedition: document.getElementById('expedition').selectedOptions[0].text,
+                paymentMethod: document.getElementById('paymentMethod').selectedOptions[0].text,
+                items: [...cart],
+                subtotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                shippingCost: parseInt(document.getElementById('expedition').selectedOptions[0].dataset.cost),
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + parseInt(document.getElementById('expedition').selectedOptions[0].dataset.cost),
+                status: 'Menunggu Pembayaran',
+                orderDate: new Date().toLocaleString('id-ID')
+            };
+
+            // Update product stock
+            cart.forEach(cartItem => {
+                const product = products.find(p => p.id === cartItem.id);
+                if (product) {
+                    product.stock -= cartItem.quantity;
+                }
+            });
+
+            orders.push(orderData);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('products', JSON.stringify(products));
+
+            // Clear cart
+            cart = [];
+            updateCartCount();
+
+            // Show success page
+            showOrderSuccess(orderData);
+        }
+
+        function showOrderSuccess(orderData) {
+            document.getElementById('checkoutPage').classList.add('hidden');
+            document.getElementById('orderSuccessPage').classList.remove('hidden');
+
+            const orderDetails = document.getElementById('orderDetails');
+            orderDetails.innerHTML = `
+                <h4 class="font-bold mb-2">Detail Pesanan #${orderData.id}</h4>
+                <p><strong>Tanggal:</strong> ${orderData.orderDate}</p>
+                <p><strong>Penerima:</strong> ${orderData.receiverName}</p>
+                <p><strong>Alamat:</strong> ${orderData.address}</p>
+                <p><strong>Telepon:</strong> ${orderData.phone}</p>
+                <p><strong>Ekspedisi:</strong> ${orderData.expedition}</p>
+                <p><strong>Pembayaran:</strong> ${orderData.paymentMethod}</p>
+                <p><strong>Total:</strong> Rp ${orderData.total.toLocaleString()}</p>
+                <p><strong>Status:</strong> ${orderData.status}</p>
+            `;
+        }
+
+        // Authentication Functions
+        function signup(name, email, password) {
+            if (users.find(u => u.email === email)) {
+                alert('Email sudah terdaftar!');
+                return false;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                password,
+                isAdmin: false
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Pendaftaran berhasil! Silakan login.');
+            return true;
+        }
+
+        function login(email, password) {
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUI();
+                return true;
+            }
+            alert('Email atau password salah!');
+            return false;
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            cart = [];
+            updateUI();
+            showHomePage();
+        }
+
+        // Admin Functions
+        function showAdminPanel() {
+            if (!currentUser || !currentUser.isAdmin) {
+                alert('Akses ditolak!');
+                return;
+            }
+
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            loadAdminProducts();
+        }
+
+        function loadAdminProducts() {
+            const adminProductList = document.getElementById('adminProductList');
+            adminProductList.innerHTML = '';
+
+            products.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'flex justify-between items-center p-4 border rounded-lg';
+                productItem.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-2xl">${product.image}</span>
+                        <div>
+                            <h4 class="font-bold">${product.name}</h4>
+                            <p class="text-gray-600">Rp ${product.price.toLocaleString()} - Stok: ${product.stock}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editProduct(${product.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</button>
+                        <button onclick="deleteProduct(${product.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Hapus</button>
+                    </div>
+                `;
+                adminProductList.appendChild(productItem);
+            });
+        }
+
+        function showAddProductModal() {
+            document.getElementById('productModalTitle').textContent = 'Tambah Produk';
+            document.getElementById('productForm').reset();
+            editingProductId = null;
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('productModalTitle').textContent = 'Edit Produk';
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productDescription').value = product.description;
+                document.getElementById('productStock').value = product.stock;
+                editingProductId = productId;
+                document.getElementById('productModal').classList.remove('hidden');
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Yakin ingin menghapus produk ini?')) {
+                products = products.filter(p => p.id !== productId);
+                localStorage.setItem('products', JSON.stringify(products));
+                loadAdminProducts();
+                loadProducts();
+            }
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            const description = document.getElementById('productDescription').value;
+            const stock = parseInt(document.getElementById('productStock').value);
+
+            if (editingProductId) {
+                const product = products.find(p => p.id === editingProductId);
+                if (product) {
+                    product.name = name;
+                    product.price = price;
+                    product.description = description;
+                    product.stock = stock;
+                }
+            } else {
+                const newProduct = {
+                    id: Date.now(),
+                    name,
+                    price,
+                    description,
+                    stock,
+                    image: '📦'
+                };
+                products.push(newProduct);
+            }
+
+            localStorage.setItem('products', JSON.stringify(products));
+            document.getElementById('productModal').classList.add('hidden');
+            loadAdminProducts();
+            loadProducts();
+        }
+
+        function showAdminOrders() {
+            document.getElementById('productManagement').classList.add('hidden');
+            document.getElementById('orderManagement').classList.remove('hidden');
+
+            const adminOrderList = document.getElementById('adminOrderList');
+            adminOrderList.innerHTML = '';
+
+            if (orders.length === 0) {
+                adminOrderList.innerHTML = '<p class="text-gray-500 text-center">Belum ada pesanan</p>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const orderItem = document.createElement('div');
+                orderItem.className = 'border rounded-lg p-4 bg-gray-50';
+                orderItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-bold">Pesanan #${order.id}</h4>
+                            <p class="text-gray-600">${order.orderDate}</p>
+                            <p class="text-gray-600">Customer: ${order.customerName}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm bg-yellow-200 text-yellow-800">${order.status}</span>
+                    </div>
+                    <div class="mb-4">
+                        <p><strong>Penerima:</strong> ${order.receiverName}</p>
+                        <p><strong>Alamat:</strong> ${order.address}</p>
+                        <p><strong>Telepon:</strong> ${order.phone}</p>
+                        <p><strong>Ekspedisi:</strong> ${order.expedition}</p>
+                        <p><strong>Pembayaran:</strong> ${order.paymentMethod}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-bold mb-2">Items:</h5>
+                        ${order.items.map(item => `
+                            <div class="flex justify-between">
+                                <span>${item.name} x${item.quantity}</span>
+                                <span>Rp ${(item.price * item.quantity).toLocaleString()}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl font-bold">Total: Rp ${order.total.toLocaleString()}</p>
+                    </div>
+                `;
+                adminOrderList.appendChild(orderItem);
+            });
+        }
+
+        function showHomePage() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('checkoutPage').classList.add('hidden');
+            document.getElementById('orderSuccessPage').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+
+        // Event Listeners
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.remove('hidden');
+        });
+
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            document.getElementById('signupModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cartBtn').addEventListener('click', () => {
+            if (!currentUser) {
+                alert('Silakan login terlebih dahulu!');
+                return;
+            }
+            showCart();
+            document.getElementById('cartModal').classList.remove('hidden');
+        });
+
+        document.getElementById('adminBtn').addEventListener('click', showAdminPanel);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Modal close buttons
+        document.getElementById('closeLoginModal').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeSignupModal').addEventListener('click', () => {
+            document.getElementById('signupModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeCartModal').addEventListener('click', () => {
+            document.getElementById('cartModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeProductModal').addEventListener('click', () => {
+            document.getElementById('productModal').classList.add('hidden');
+        });
+
+        // Form submissions
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (login(email, password)) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('loginForm').reset();
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Password tidak cocok!');
+                return;
+            }
+            
+            if (signup(name, email, password)) {
+                document.getElementById('signupModal').classList.add('hidden');
+                document.getElementById('signupForm').reset();
+            }
+        });
+
+        document.getElementById('productForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveProduct();
+        });
+
+        // Checkout buttons
+        document.getElementById('checkoutBtn').addEventListener('click', showCheckout);
+        document.getElementById('backToCart').addEventListener('click', () => {
+            document.getElementById('checkoutPage').classList.add('hidden');
+            document.getElementById('homePage').classList.remove('hidden');
+        });
+
+        document.getElementById('placeOrder').addEventListener('click', placeOrder);
+        document.getElementById('backToHome').addEventListener('click', showHomePage);
+
+        // Admin buttons
+        document.getElementById('showProducts').addEventListener('click', () => {
+            document.getElementById('productManagement').classList.remove('hidden');
+            document.getElementById('orderManagement').classList.add('hidden');
+        });
+
+        document.getElementById('showOrders').addEventListener('click', showAdminOrders);
+        document.getElementById('backToHomeFromAdmin').addEventListener('click', showHomePage);
+        document.getElementById('addProductBtn').addEventListener('click', showAddProductModal);
+
+        // Update shipping cost when expedition changes
+        document.getElementById('expedition').addEventListener('change', updateCheckoutSummary);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984f82e6b0405833',t:'MTc1ODg1NTYzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
